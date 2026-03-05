@@ -89,19 +89,16 @@ def smooth_open_geometry(
     x = np.asarray(x)
     y = np.asarray(y)
 
+    _validate_savgol_params(window_length, polyorder)
+    pad_count = window_length if pad_count is None else pad_count
+    _validate_pad_count(pad_count)
+
     # Optional densification
     if max_segment_length is not None:
         x, y = densify_geometry(x, y, max_segment_length)
 
-    try:
-        if len(x) < window_length:
-            return x.copy(), y.copy()
-    except TypeError:
-        pass
-
-    pad_count = window_length if pad_count is None else pad_count
-    _validate_savgol_params(window_length, polyorder)
-    _validate_pad_count(pad_count)
+    if len(x) < window_length:
+        return x.copy(), y.copy()
 
     # Store original endpoints
     x_s, y_s = x[0], y[0]
@@ -152,16 +149,14 @@ def smooth_closed_geometry(x, y, window_length, polyorder, max_segment_length=No
     x = np.asarray(x)
     y = np.asarray(y)
 
+    _validate_savgol_params(window_length, polyorder)
+
     # Optional densification
     if max_segment_length is not None:
         x, y = densify_geometry(x, y, max_segment_length)
 
-    try:
-        if len(x) < window_length:
-            return x.copy(), y.copy()
-    except TypeError:
-        pass
-    _validate_savgol_params(window_length, polyorder)
+    if len(x) < window_length:
+        return x.copy(), y.copy()
 
     return (
         savgol_filter(x, window_length, polyorder, mode="wrap"),
