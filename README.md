@@ -12,7 +12,7 @@ A pure Python library providing GIS-agnostic implementations of geometry smoothi
 
 ## Installation
 
-### From PyPI (⚠️ NOT YET AVAILABLE)
+### From PyPI
 ```bash
 pip install sbanks-core
 ```
@@ -43,7 +43,7 @@ y = np.array([0.0, 5.2, 1.1, 6.3, 0.8, 4.9, 0.0])
 x_smooth, y_smooth = resample_and_smooth(x, y, delta_s=5.0)
 
 # Or use the Whittaker smoother directly
-smoother = WhittakerSmoother(lam=10.0, d=2)
+smoother = WhittakerSmoother(lmbda=10.0, order=2, data_length=len(y))
 y_smoothed = smoother.smooth(y)
 ```
 
