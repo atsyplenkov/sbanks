@@ -84,6 +84,22 @@ class TestCalculateCumulativeDistances:
         dist = calculate_cumulative_distances(x, y)
         assert isinstance(dist, np.ndarray)
 
+    def test_geographic_mode_does_not_call_scalar_haversine(self, monkeypatch):
+        """Geographic mode should use vectorized path, not scalar helper loop."""
+
+        def _fail_if_called(*args, **kwargs):
+            raise AssertionError("haversine_distance should not be called in geographic mode")
+
+        monkeypatch.setattr("sbanks_core.geometry.haversine_distance", _fail_if_called)
+
+        x = np.array([0.0, 0.1, 0.2, 0.3])
+        y = np.array([0.0, 0.0, 0.0, 0.0])
+        dist = calculate_cumulative_distances(x, y, is_geographic=True)
+
+        assert len(dist) == len(x)
+        assert dist[0] == 0.0
+        assert np.all(np.diff(dist) > 0)
+
 
 class TestApplyAntihookPadding:
     """Test cases for apply_antihook_padding function."""
@@ -200,8 +216,8 @@ class TestResampleAndSmooth:
         assert isinstance(x_new, np.ndarray)
         assert isinstance(y_new, np.ndarray)
 
-    def test_spline_failure_returns_input(self, monkeypatch):
-        """Spline fitting failures should return original arrays."""
+    def test_spline_failure_warns_and_returns_input(self, monkeypatch):
+        """Spline fitting failures should warn and return original arrays."""
 
         called = {"count": 0}
 
@@ -214,13 +230,40 @@ class TestResampleAndSmooth:
 
         monkeypatch.setattr("sbanks_core.geometry.splprep", fail_splprep)
 
-        x_new, y_new = resample_and_smooth(x, y, delta_s=0.5)
+        with pytest.warns(
+            RuntimeWarning,
+            match=r"^resample_and_smooth spline fitting failed: RuntimeError: forced$",
+        ):
+            x_new, y_new = resample_and_smooth(x, y, delta_s=0.5)
 
         assert called["count"] == 1
         np.testing.assert_array_equal(x_new, x)
         np.testing.assert_array_equal(y_new, y)
         assert isinstance(x_new, np.ndarray)
         assert isinstance(y_new, np.ndarray)
+
+    def test_smoothing_factor_passed_as_absolute_s(self, monkeypatch):
+        """smoothing_factor should be passed directly to splprep as s."""
+
+        captured = {}
+
+        def fake_splprep(coords, s, k):
+            captured["s"] = s
+            return ("fake_tck", None)
+
+        def fake_splev(u_new, tck):
+            return np.linspace(0.0, 1.0, len(u_new)), np.linspace(0.0, 1.0, len(u_new))
+
+        monkeypatch.setattr("sbanks_core.geometry.splprep", fake_splprep)
+        monkeypatch.setattr("sbanks_core.geometry.splev", fake_splev)
+
+        x = np.array([0.0, 5.0, 10.0, 15.0])
+        y = np.array([0.0, 1.0, 0.0, 1.0])
+        smoothing_factor = 2.5
+
+        resample_and_smooth(x, y, delta_s=1.0, smoothing_factor=smoothing_factor)
+
+        assert captured["s"] == smoothing_factor
 
 
 class TestSnapEndpoints:
