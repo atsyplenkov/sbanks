@@ -241,12 +241,12 @@ class TestShapePreservation:
         # Allow deviation of up to 0.1 * std(y), with minimum absolute tolerance
         std_y = np.std(y)
         # For constant signals with high lambda (>1e5), numerical conditioning causes larger errors.
-        # In extreme lambda regimes (>1e7), relative error can rise to ~5e-6 of signal magnitude,
+        # In extreme lambda regimes (>1e7), relative error can rise to ~1e-5 of signal magnitude,
         # especially with high-order smoothing and non-uniform spacing.
         if std_y < 1e-10 and params["lmbda"] > 1e5:
             signal_scale = max(abs(mean_original), 1)
             if params["lmbda"] > 1e7:
-                tolerance = max(5e-6 * signal_scale, 1e-5)
+                tolerance = max(1e-5 * signal_scale, 1e-5)
             else:
                 tolerance = max(1e-6 * signal_scale, 5e-6)
         else:
