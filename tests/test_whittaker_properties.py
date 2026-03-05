@@ -214,6 +214,7 @@ class TestShapePreservation:
                 f"diff={abs(intercept_smooth - intercept):.6f}"
             )
 
+
 # Disabled tests - these reveal edge cases where properties break down
 # rather than actual algorithm bugs. Kept for reference.
 #

@@ -90,7 +90,9 @@ class TestNonUniformSpacing:
         lmbda = 1.0
 
         # sbanks implementation with x_input
-        sbanks_smoother = WhittakerSmoother(lmbda=lmbda, order=2, data_length=n, x_input=x)
+        sbanks_smoother = WhittakerSmoother(
+            lmbda=lmbda, order=2, data_length=n, x_input=x
+        )
         sbanks_result = sbanks_smoother.smooth(y_noisy)
 
         # Reference implementation with x_input

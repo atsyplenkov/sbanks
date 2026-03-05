@@ -9,7 +9,11 @@ smoothing to open (LineString) and closed (Polygon ring) geometries.
 import numpy as np
 from scipy.signal import savgol_filter
 
-from .geometry import apply_antihook_padding, calculate_cumulative_distances, densify_geometry
+from .geometry import (
+    apply_antihook_padding,
+    calculate_cumulative_distances,
+    densify_geometry,
+)
 
 
 def _validate_savgol_params(window_length, polyorder):

@@ -88,7 +88,9 @@ class TestCalculateCumulativeDistances:
         """Geographic mode should use vectorized path, not scalar helper loop."""
 
         def _fail_if_called(*args, **kwargs):
-            raise AssertionError("haversine_distance should not be called in geographic mode")
+            raise AssertionError(
+                "haversine_distance should not be called in geographic mode"
+            )
 
         monkeypatch.setattr("sbanks_core.geometry.haversine_distance", _fail_if_called)
 

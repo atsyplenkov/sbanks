@@ -116,7 +116,9 @@ class TestSmoothOpenGeometry:
         y = np.sin(x)
 
         with pytest.raises(ValueError, match="pad_count"):
-            smooth_open_geometry(x, y, window_length=11, polyorder=3, pad_count=pad_count)
+            smooth_open_geometry(
+                x, y, window_length=11, polyorder=3, pad_count=pad_count
+            )
 
     def test_short_open_raises_for_invalid_params(self):
         x = np.array([0.0, 1.0, 2.0])
@@ -135,7 +137,9 @@ class TestSmoothOpenGeometry:
         y = np.array([0.0, 0.0])
 
         with pytest.raises(ValueError, match="window_length"):
-            smooth_open_geometry(x, y, window_length=4, polyorder=2, max_segment_length=10.0)
+            smooth_open_geometry(
+                x, y, window_length=4, polyorder=2, max_segment_length=10.0
+            )
 
     def test_open_uneven_spacing_fixture_has_stable_output_bounds(self):
         x = np.array([0.0, 1.0, 2.0, 100.0, 101.0, 102.0])
@@ -397,7 +401,9 @@ class TestPipelineIntegration:
         x_dense, y_dense = densify_geometry(x, y, max_segment_length=1.5)
         assert len(x_dense) == 5
 
-        x_sm, y_sm = smooth_closed_geometry(x_dense, y_dense, window_length=5, polyorder=2)
+        x_sm, y_sm = smooth_closed_geometry(
+            x_dense, y_dense, window_length=5, polyorder=2
+        )
 
         x_roll = np.roll(x_dense, 1)
         y_roll = np.roll(y_dense, 1)
