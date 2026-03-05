@@ -200,6 +200,29 @@ class TestResampleAndSmooth:
         assert isinstance(x_new, np.ndarray)
         assert isinstance(y_new, np.ndarray)
 
+    def test_spline_failure_returns_input(self, monkeypatch):
+        """Spline fitting failures should return original arrays."""
+        import sbanks_core.geometry as geometry
+
+        called = {"count": 0}
+
+        def fail_splprep(*args, **kwargs):
+            called["count"] += 1
+            raise RuntimeError("forced")
+
+        x = np.array([0.0, 1.0, 2.0])
+        y = np.array([0.0, 0.0, 0.0])
+
+        monkeypatch.setattr(geometry, "splprep", fail_splprep)
+
+        x_new, y_new = resample_and_smooth(x, y, delta_s=0.5)
+
+        assert called["count"] == 1
+        np.testing.assert_array_equal(x_new, x)
+        np.testing.assert_array_equal(y_new, y)
+        assert isinstance(x_new, np.ndarray)
+        assert isinstance(y_new, np.ndarray)
+
 
 class TestSnapEndpoints:
     """Test cases for snap_endpoints function."""
