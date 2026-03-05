@@ -265,6 +265,44 @@ class TestResampleAndSmooth:
 
         assert captured["s"] == smoothing_factor
 
+    def test_resample_uses_cumulative_distances_with_geographic_flag(self, monkeypatch):
+        captured = {}
+
+        def fake_cumulative(x, y, is_geographic=False):
+            captured["is_geographic"] = is_geographic
+            return np.array([0.0, 10.0])
+
+        def fake_splprep(coords, s, k):
+            return ("fake_tck", None)
+
+        def fake_splev(u_new, tck):
+            return np.linspace(0.0, 1.0, len(u_new)), np.linspace(0.0, 1.0, len(u_new))
+
+        monkeypatch.setattr(
+            "sbanks_core.geometry.calculate_cumulative_distances", fake_cumulative
+        )
+        monkeypatch.setattr("sbanks_core.geometry.splprep", fake_splprep)
+        monkeypatch.setattr("sbanks_core.geometry.splev", fake_splev)
+
+        x = np.array([0.0, 1.0])
+        y = np.array([0.0, 0.0])
+
+        resample_and_smooth(x, y, delta_s=1.0, is_geographic=True)
+
+        assert captured["is_geographic"] is True
+
+    def test_resample_density_differs_between_cartesian_and_geographic_modes(self):
+        x = np.array([0.0, 1.0, 2.0])
+        y = np.array([0.0, 0.0, 0.0])
+
+        x_cart, y_cart = resample_and_smooth(x, y, delta_s=1000.0, is_geographic=False)
+        x_geo, y_geo = resample_and_smooth(x, y, delta_s=1000.0, is_geographic=True)
+
+        np.testing.assert_array_equal(x_cart, x)
+        np.testing.assert_array_equal(y_cart, y)
+        assert len(x_geo) > len(x)
+        assert len(y_geo) > len(y)
+
 
 class TestSnapEndpoints:
     """Test cases for snap_endpoints function."""
