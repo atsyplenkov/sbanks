@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
@@ -10,7 +10,8 @@ name = "sbanks-core"
 version = "0.1.0"
 description = "Pure Python geometry smoothing algorithms"
 readme = "README.md"
-license = { text = "GPL-3.0-or-later" }
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
 authors = [
     { name = "Anatoly Tsyplenkov", email = "hard.sign9115@fastmail.com" },
 ]
