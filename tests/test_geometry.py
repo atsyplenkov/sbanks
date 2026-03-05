@@ -213,7 +213,7 @@ class TestResampleAndSmooth:
         x = np.array([0.0, 1.0, 2.0])
         y = np.array([0.0, 0.0, 0.0])
 
-        monkeypatch.setattr(geometry, "splprep", fail_splprep)
+        monkeypatch.setattr("sbanks_core.geometry.splprep", fail_splprep)
 
         x_new, y_new = resample_and_smooth(x, y, delta_s=0.5)
 
