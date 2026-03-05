@@ -207,7 +207,7 @@ def apply_ring_padding(x, y, distances, pad_count, total_perimeter):
     return x_ext, y_ext, d_ext
 
 
-def resample_and_smooth(x, y, delta_s, smoothing_factor=1.0):
+def resample_and_smooth(x, y, delta_s, smoothing_factor=1.0, is_geographic=False):
     """
     Resample and smooth coordinates using spline interpolation.
 
@@ -222,6 +222,10 @@ def resample_and_smooth(x, y, delta_s, smoothing_factor=1.0):
     smoothing_factor : float, optional
         Absolute smoothing value passed to SciPy spline parameter ``s``.
         Default is 1.0 (not scaled by point count).
+    is_geographic : bool, optional
+        If True, cumulative distance is computed with Haversine metric
+        (meters) using longitude/latitude coordinates. If False,
+        cumulative distance uses Cartesian coordinate units.
 
     Returns
     -------
@@ -233,7 +237,7 @@ def resample_and_smooth(x, y, delta_s, smoothing_factor=1.0):
     y = np.asarray(y)
 
     # Calculate cumulative distance
-    dist = np.concatenate([[0], np.cumsum(np.sqrt(np.diff(x) ** 2 + np.diff(y) ** 2))])
+    dist = calculate_cumulative_distances(x, y, is_geographic=is_geographic)
     total = dist[-1]
 
     if total < delta_s:
