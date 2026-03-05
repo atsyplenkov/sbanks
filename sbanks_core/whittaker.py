@@ -10,7 +10,7 @@ where D is a finite difference matrix of the specified order.
 
 import numpy as np
 from scipy import sparse
-from scipy.sparse.linalg import spsolve
+from scipy.sparse.linalg import splu
 
 
 class WhittakerSmoother:
@@ -47,6 +47,7 @@ class WhittakerSmoother:
         self.data_length = data_length
         self.x_input = np.asarray(x_input) if x_input is not None else None
         self._coef_matrix = self._build_coefficient_matrix()
+        self._lu = splu(self._coef_matrix)
 
     def _build_difference_matrix(self):
         """
@@ -127,8 +128,10 @@ class WhittakerSmoother:
 
         Returns
         -------
-        list
-            Smoothed data as a list
+        np.ndarray
+            Smoothed data as an array
         """
         y = np.asarray(y, dtype=np.float64)
-        return spsolve(self._coef_matrix, y).tolist()
+        if len(y) != self.data_length:
+            raise ValueError("Input y length must match data_length")
+        return self._lu.solve(y)
