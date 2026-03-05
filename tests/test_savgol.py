@@ -70,6 +70,13 @@ class TestSmoothOpenGeometry:
         )
         assert len(x_sm) == n
 
+    def test_random_input_is_reproducible_with_test_fixture(self):
+        n = 20
+        x = np.linspace(0, 5, n)
+        y1 = np.sin(x) + 0.1 * np.random.randn(n)
+        y2 = np.sin(x) + 0.1 * np.random.randn(n)
+        assert not np.array_equal(y1, y2)
+
 
 class TestSmoothClosedGeometry:
     """Test cases for smooth_closed_geometry function."""

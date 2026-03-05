@@ -1,10 +1,16 @@
 """Shared fixtures and Hypothesis strategies for property-based testing."""
 
 import numpy as np
+import pytest
 from hypothesis import strategies as st
 from hypothesis.extra.numpy import arrays
 
 from sbanks_core.whittaker import WhittakerSmoother
+
+
+@pytest.fixture(autouse=True)
+def _seed_numpy_for_tests():
+    np.random.seed(12345)
 
 
 @st.composite
