@@ -202,7 +202,6 @@ class TestResampleAndSmooth:
 
     def test_spline_failure_returns_input(self, monkeypatch):
         """Spline fitting failures should return original arrays."""
-        import sbanks_core.geometry as geometry
 
         called = {"count": 0}
 
