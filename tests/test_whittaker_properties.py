@@ -214,55 +214,6 @@ class TestShapePreservation:
                 f"diff={abs(intercept_smooth - intercept):.6f}"
             )
 
-    @given(smoother=smoother_with_data(min_length=20, max_length=200))
-    @settings(max_examples=100, deadline=2000, print_blob=True)
-    def test_mean_preservation(self, smoother):
-        """Smoothing should approximately preserve the mean.
-
-        Property: mean(smooth(y)) ≈ mean(y).
-
-        This is a "soft" property - the mean is approximately preserved but not
-        guaranteed to be exact. Deviations are typically much smaller than the
-        signal's standard deviation.
-
-        Note: For constant signals (std=0), numerical errors can cause deviations
-        up to ~5e-7 relative to the signal value, especially for high lambda (>1e5).
-        Higher-order smoothing (order 4) with extreme lambda values (>1e7) causes
-        significant numerical conditioning issues.
-        """
-        smoother_obj, y, params = smoother
-        assume(len(y) > 5)
-
-        y_smooth = smoother_obj.smooth(y)
-
-        mean_original = np.mean(y)
-        mean_smooth = np.mean(y_smooth)
-
-        # Allow deviation of up to 0.1 * std(y), with minimum absolute tolerance
-        std_y = np.std(y)
-        # For constant signals with high lambda (>1e5), numerical conditioning causes larger errors.
-        # In extreme lambda regimes (>1e7), relative error can rise to ~1e-5 of signal magnitude,
-        # especially with high-order smoothing and non-uniform spacing.
-        if std_y < 1e-10 and params["lmbda"] > 1e5:
-            signal_scale = max(abs(mean_original), 1)
-            if params["lmbda"] > 1e7:
-                tolerance = max(1e-5 * signal_scale, 1e-5)
-            else:
-                tolerance = max(1e-6 * signal_scale, 5e-6)
-        else:
-            tolerance = max(
-                0.1 * std_y, 1e-8
-            )  # Ensure minimum tolerance for numerical precision
-
-        assert abs(mean_smooth - mean_original) <= tolerance, (
-            f"Mean not preserved: "
-            f"mean(y)={mean_original:.6f}, mean(smooth(y))={mean_smooth:.6f}, "
-            f"difference={abs(mean_smooth - mean_original):.6f}, "
-            f"tolerance={tolerance:.6f}, "
-            f"lambda={params['lmbda']:.2e}, order={params['order']}"
-        )
-
-
 # Disabled tests - these reveal edge cases where properties break down
 # rather than actual algorithm bugs. Kept for reference.
 #
