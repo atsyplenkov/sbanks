@@ -323,25 +323,24 @@ def densify_geometry(x, y, max_segment_length):
     dy = np.diff(y)
     segment_lengths = np.sqrt(dx**2 + dy**2)
 
-    # Build result arrays
-    x_dense = [x[0]]
-    y_dense = [y[0]]
+    counts = np.where(
+        segment_lengths > max_segment_length,
+        np.ceil(segment_lengths / max_segment_length).astype(int),
+        1,
+    )
+    out_len = 1 + int(np.sum(counts))
+    out_dtype = np.result_type(x, y, np.float64)
 
-    for i in range(len(segment_lengths)):
-        seg_len = segment_lengths[i]
+    x_dense = np.empty(out_len, dtype=out_dtype)
+    y_dense = np.empty(out_len, dtype=out_dtype)
+    x_dense[0] = x[0]
+    y_dense[0] = y[0]
 
-        if seg_len > max_segment_length:
-            # Calculate number of subdivisions needed
-            n_subdivisions = int(np.ceil(seg_len / max_segment_length))
-            # Generate intermediate points via linear interpolation
-            t = np.linspace(0, 1, n_subdivisions + 1)[1:]  # Skip first (already added)
-            x_interp = x[i] + t * dx[i]
-            y_interp = y[i] + t * dy[i]
-            x_dense.extend(x_interp)
-            y_dense.extend(y_interp)
-        else:
-            # Just add the endpoint
-            x_dense.append(x[i + 1])
-            y_dense.append(y[i + 1])
+    pos = 1
+    for i, count in enumerate(counts):
+        t = np.linspace(0.0, 1.0, int(count) + 1)[1:]
+        x_dense[pos : pos + count] = x[i] + t * dx[i]
+        y_dense[pos : pos + count] = y[i] + t * dy[i]
+        pos += count
 
-    return np.array(x_dense), np.array(y_dense)
+    return x_dense, y_dense
