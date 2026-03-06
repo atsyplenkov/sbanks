@@ -2,7 +2,7 @@
 """Package contract tests for the renamed sbanks distribution."""
 
 import importlib
-import tomllib
+import re
 from pathlib import Path
 
 
@@ -24,6 +24,5 @@ def test_expected_public_symbols_available_from_sbanks():
 
 def test_distribution_metadata_uses_sbanks_name():
     pyproject_path = Path(__file__).resolve().parents[1] / "pyproject.toml"
-    with pyproject_path.open("rb") as handle:
-        data = tomllib.load(handle)
-    assert data["project"]["name"] == "sbanks"
+    pyproject_text = pyproject_path.read_text(encoding="utf-8")
+    assert re.search(r'(?ms)^\[project\].*^name = "sbanks"$', pyproject_text)
